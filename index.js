@@ -1,13 +1,12 @@
+require("dotenv").config();
 const express = require("express");
+const session = require("express-session");
 const Sequelize = require("sequelize");
-// const sequelize = new Sequelize(process.env.DATABASE_URL);
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
-const session = require("express-session");
 
-require("dotenv").config();
+require('./auth')
 
 const app = express();
 app.use(
@@ -47,34 +46,6 @@ const SentEmail = sequelize.define("sent_email", {
 
 SentEmail.sync();
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/google/callback",
-    },
-    function (accessToken, refreshToken, profile, done) {
-      // Here you can check if the user is already registered in your database
-      const user = {
-        email: profile.emails[0].value,
-        displayName: profile.displayName,
-        accessToken,
-        refreshToken,
-      };
-      done(null, user);
-    }
-  )
-);
-
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-
 function isLoggedIn(req, res, next) {
   req.user ? next() : res.redirect("/auth/google");
 }
@@ -85,51 +56,41 @@ app.get("/", (req, res) => {
 
 app.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
 app.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/auth/failure",
     successRedirect: "/send-email",
+    failureRedirect: "/auth/failure"
   })
-  // async function (req, res) {
-  //   // const token = jwt.sign({ email: req.user.email, name: req.user.displayName }, process.env.JWT_SECRET);
-  //   // res.cookie("token", token);
-  //   const loggedinUser = await User.create({
-  //     name: req.user.displayName,
-  //     email: req.user.email
-  //   });
-  //   console.log("Email saved")
-  //   res.redirect("/send-email");
-  // }
 );
 
 app.get("/auth/failure", (req, res) => {
-  res.send("something went wrong");
+  res.send("Not logged in! Something went wrong.");
 });
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.get("/send-email", isLoggedIn, async (req, res) => {
+app.get("/send-email", isLoggedIn, (req, res) => {
+  res.send("Welcome")
   res.render("sendEmail.ejs");
 });
 
-app.post("/send-email", isLoggedIn, async (req, res) => {
-  // const header = req.headers.authorization;
-  // if (!header) {
-  //   return res.status(403).json({
-  //     message: "Not logged in",
-  //   });
-  // }
-  // const token = header.split(" ")[1];
-  // const userInfo = jwt.verify(token, process.env.TOKEN_SECRET);
-  // console.log(userInfo);
+app.post("/send-email", isLoggedIn,  (req, res) => {
+  const header = req.headers.authorization;
+  if (!header) {
+    return res.status(403).json({
+      message: "Not logged in",
+    });
+  }
+  const token = header.split(" ")[1];
+  const userInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+  console.log(userInfo);
+  res.send(userInfo)
 
   const { recipientEmails, subject, body } = req.body;
-  // const senderEmail = userInfo.email;
-  // const senderName = userInfo.name;
 
   const senderEmail = req.user.email;
   const senderName = req.user.displayName;
@@ -140,7 +101,7 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
     subject: subject,
     text: body,
   };
-  // try {
+
   sgMail.send(msg).then((response) => {
     console.log("Email sent");
     SentEmail.create({
@@ -158,17 +119,13 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
         console.log(err.message);
       });
   });
-
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(500).send("Error sending email.");
-  // }
+  
 });
 
 app.get("/logout", (req, res) => {
   req.logout;
   req.session.destroy();
-  // res.send("Successfully logged out")
+  res.send("Successfully logged out")
   res.redirect("/");
 });
 
