@@ -1,0 +1,89 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap");
+    body {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+      font-family: "Noto Serif", serif;
+      max-width: 1200px;
+    }
+    h1 {
+      padding-top: 10px;
+    }
+    .content {
+      margin: 0 15%;
+    }
+    .send_email form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .send_email input,
+    .send_email textarea {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 8px;
+    }
+    .send_email label {
+      display: block;
+      margin-top: 5px;
+    }
+    textarea {
+      height: 120px;
+    }
+    .send_email button {
+      margin-top: 20px;
+      background: crimson;
+      color: white;
+      padding: 6px 80px;
+      border: 0;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+    .logout {
+      margin-top: 20px;
+      background: crimson;
+      color: white;
+      padding: 6px 70px;
+      border: 0;
+      font-size: 1.2em;
+      cursor: pointer;
+      text-decoration:none ;
+    }
+    .btn-container{
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+    }
+  </style>
+</head>
+
+<div class="content">
+  <div class="btn-container">
+    <a href="/logout" class="logout">Logout</a>
+  </div>
+  <h1>Send emails</h1>
+  <form action="/send-email" method="POST" class="send_email">
+    <div>
+      <label for="email">Emails: (separated by commas)</label><br />
+      <input
+        type="email"
+        id="recipientEmails"
+        name="recipientEmails"
+        required
+      />
+    </div>
+    <div>
+      <label for="subject">Subject: </label><br />
+      <input type="text" id="subject" name="subject" required />
+    </div>
+    <div>
+      <label for="body">Body: </label><br />
+      <textarea type="text" id="body" name="body" required></textarea><br />
+    </div>
+    <button type="submit">Send</button>
+  </form>
+</div>
