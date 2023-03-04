@@ -76,8 +76,7 @@ passport.deserializeUser(function (user, done) {
 });
 
 function isLoggedIn(req, res, next) {
-  req.user ? next() : 
-  res.redirect('/auth/google');
+  req.user ? next() : res.redirect("/auth/google");
 }
 
 app.get("/", (req, res) => {
@@ -94,15 +93,15 @@ app.get(
   passport.authenticate("google", {
     failureRedirect: "/auth/failure",
     successRedirect: "/send-email",
-  }),
+  })
   // async function (req, res) {
   //   // const token = jwt.sign({ email: req.user.email, name: req.user.displayName }, process.env.JWT_SECRET);
   //   // res.cookie("token", token);
   //   const loggedinUser = await User.create({
   //     name: req.user.displayName,
-  //     email: req.user.email 
+  //     email: req.user.email
   //   });
-  //   console.log("Email saved") 
+  //   console.log("Email saved")
   //   res.redirect("/send-email");
   // }
 );
@@ -141,34 +140,37 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
     subject: subject,
     text: body,
   };
-  try {
-    await sgMail.send(msg).then((response) => {
-      console.log("Email sent");
-    });
-    const sentEmail = await SentEmail.create({
+  // try {
+  sgMail.send(msg).then((response) => {
+    console.log("Email sent");
+    SentEmail.create({
       sender: senderEmail,
-      recipients: recipientEmails,
+      recipients: [recipientEmails],
       subject: subject,
-      body: body
-    });
-    console.log("Email saved")
-    return res.status(200).send("Email sent successfully and saved to database!");
-    // })
-    // .catch((err) => {
-    //   console.log(err.message);
-    // });
-  } catch (error) {
-    console.log(error)
-    res.status(500).send("Error sending email.");
-  }
+      body: body,
+    })
+      .then((res) => {
+        console.log("Email saved");
+        console.log("Email sent successfully and saved to database!");
+        return;
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  });
+
+  // } catch (error) {
+  //   console.log(error)
+  //   res.status(500).send("Error sending email.");
+  // }
 });
 
 app.get("/logout", (req, res) => {
   req.logout;
   req.session.destroy();
-  res.send("Successfully logged out")
-})
-
+  // res.send("Successfully logged out")
+  res.redirect("/");
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
