@@ -21,30 +21,30 @@ app.use(passport.session());
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 
-const sequelize = new Sequelize({
-  dialect: "postgres",
-  host: process.env.DATABASE_HOST,
-  port: process.env.DATABASE_PORT,
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-});
+// const sequelize = new Sequelize({
+//   dialect: "postgres",
+//   host: process.env.DATABASE_HOST,
+//   port: process.env.DATABASE_PORT,
+//   username: process.env.DATABASE_USERNAME,
+//   password: process.env.DATABASE_PASSWORD,
+//   database: process.env.DATABASE_NAME,
+// });
 
-const User = sequelize.define("user", {
-  email: { type: Sequelize.STRING, allowNull: false, primaryKey: true },
-  name: { type: Sequelize.STRING, allowNull: false },
-});
+// const User = sequelize.define("user", {
+//   email: { type: Sequelize.STRING, allowNull: false, primaryKey: true },
+//   name: { type: Sequelize.STRING, allowNull: false },
+// });
 
-User.sync();
+// User.sync();
 
-const SentEmail = sequelize.define("sent_email", {
-  sender: { type: Sequelize.STRING, allowNull: false },
-  recipients: { type: Sequelize.ARRAY(Sequelize.STRING), allowNull: false },
-  subject: { type: Sequelize.STRING, allowNull: true },
-  body: { type: Sequelize.STRING, allowNull: true },
-});
+// const SentEmail = sequelize.define("sent_email", {
+//   sender: { type: Sequelize.STRING, allowNull: false },
+//   recipients: { type: Sequelize.ARRAY(Sequelize.STRING), allowNull: false },
+//   subject: { type: Sequelize.STRING, allowNull: true },
+//   body: { type: Sequelize.STRING, allowNull: true },
+// });
 
-SentEmail.sync();
+// SentEmail.sync();
 
 function isLoggedIn(req, res, next) {
   req.user ? next() : res.redirect("/auth/google");
@@ -74,7 +74,7 @@ app.get("/auth/failure", (req, res) => {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.get("/send-email", isLoggedIn, (req, res) => {
-  res.send("Welcome")
+  console.log(`Welcome ${req.user.displayName}`)
   res.render("sendEmail.ejs");
 });
 
@@ -111,7 +111,6 @@ app.post("/send-email", isLoggedIn,  (req, res) => {
       body: body,
     })
       .then((res) => {
-        console.log("Email saved");
         console.log("Email sent successfully and saved to database!");
         return;
       })
@@ -123,10 +122,10 @@ app.post("/send-email", isLoggedIn,  (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  req.logout;
+  req.logout();
   req.session.destroy();
-  res.send("Successfully logged out")
   res.redirect("/");
+  console.log({"messsage": "Successfully logged out"})
 });
 
 app.listen(3000, () => {
