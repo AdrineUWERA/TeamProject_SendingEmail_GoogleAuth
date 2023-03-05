@@ -8,8 +8,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "http://localhost:3000/google/callback",
     },
-    function (accessToken, refreshToken, profile, done) {
-      // Here you can check if the user is already registered in your database
+    function (accessToken, refreshToken, profile, done) { 
       const user = {
         email: profile.emails[0].value,
         displayName: profile.displayName,
@@ -28,3 +27,5 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user);
 });
+
+module.exports = passport;
