@@ -6,10 +6,12 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 const session = require("express-session");
+const cookieParser = require('cookie-parser');
 
 require("dotenv").config();
 
 const app = express();
+app.use(cookieParser());
 app.use(
   session({
     secret: process.env.EXPRESS_SESSION_SECRET,
@@ -75,8 +77,10 @@ passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.redirect("/auth/google");
+function isLoggedIn(req, res, next) {console.log("the cookie", req.cookies)
+  const token = req.cookies.token;
+  const verify = jwt.verify(token, process.env.JWT_SECRET);
+  req.user.email === verify.email ? next() : res.redirect("/auth/google");
 }
 
 app.get("/", (req, res) => {
@@ -92,18 +96,28 @@ app.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/auth/failure",
-    successRedirect: "/send-email",
+    // successRedirect: "/send-email",
   })
-  // async function (req, res) {
-  //   // const token = jwt.sign({ email: req.user.email, name: req.user.displayName }, process.env.JWT_SECRET);
-  //   // res.cookie("token", token);
-  //   const loggedinUser = await User.create({
-  //     name: req.user.displayName,
-  //     email: req.user.email
-  //   });
-  //   console.log("Email saved")
-  //   res.redirect("/send-email");
-  // }
+  , async function (req, res) {
+    const token = jwt.sign({ email: req.user.email, name: req.user.displayName }, process.env.JWT_SECRET);
+    console.log("token", token)
+    res.cookie("token", token);
+    const user = await User.findOne({ where: { email: req.user.email } });
+    if (!user) {
+      User.create({
+        name: req.user.displayName,
+        email: req.user.email,
+      })
+        .then(() => {
+          console.log("User saved");
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
+    console.log("User saved successfully")
+    res.redirect("/send-email");
+  }
 );
 
 app.get("/auth/failure", (req, res) => {
@@ -115,6 +129,24 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 app.get("/send-email", isLoggedIn, async (req, res) => {
   res.render("sendEmail.ejs");
 });
+
+// app.get("/send-email", isLoggedIn, async (req, res) => {
+  // const user = await User.findOne({ where: { email: req.user.email } });
+  // if (!user) {
+  //   User.create({
+  //     name: req.user.displayName,
+  //     email: req.user.email,
+  //   })
+  //     .then(() => {
+  //       console.log("User saved");
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.message);
+  //     });
+  // }
+
+//   res.render("sendEmail.ejs");
+// });
 
 app.post("/send-email", isLoggedIn, async (req, res) => {
   // const header = req.headers.authorization;
@@ -140,7 +172,7 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
     subject: subject,
     text: body,
   };
-  // try {
+  try {
   sgMail.send(msg).then((response) => {
     console.log("Email sent");
     SentEmail.create({
@@ -152,17 +184,17 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
       .then((res) => {
         console.log("Email saved");
         console.log("Email sent successfully and saved to database!");
-        return;
       })
       .catch((err) => {
         console.log(err.message);
       });
   });
+  res.redirect("/send-email");
 
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(500).send("Error sending email.");
-  // }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Error sending email.");
+  }
 });
 
 app.get("/logout", (req, res) => {
