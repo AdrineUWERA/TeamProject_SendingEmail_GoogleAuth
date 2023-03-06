@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/AdrineUWERA/TeamProject_SendingEmail_GoogleAuth/badge.svg?branch=main)](https://coveralls.io/github/AdrineUWERA/TeamProject_SendingEmail_GoogleAuth?branch=main) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/AdrineUWERA/TeamProject_SendingEmail_GoogleAuth/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/AdrineUWERA/TeamProject_SendingEmail_GoogleAuth/tree/main)
+
 # TEAM PROJECT
 ## Project description
 - A simple API that allow people authenticated with Google to send Emails to list of emails
