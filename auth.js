@@ -1,13 +1,14 @@
 const passport = require('passport');
-const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy; 
 
-passport.use(new GoogleStrategy({
-    clientID:     process.env.GOOGLE_CLIENT_ID,   
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/google/callback",
-    passReqToCallback   : true
-  },
-  function(request, accessToken, refreshToken, profile, done) {
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/google/callback",
+    },
+    function (accessToken, refreshToken, profile, done) { 
       const user = {
         email: profile.emails[0].value,
         displayName: profile.displayName,
@@ -16,10 +17,15 @@ passport.use(new GoogleStrategy({
       };
       done(null, user);
     }
-));
-passport.serializeUser((user, done)=>{
-  done(null, user)
-})
-passport.deserializeUser((user, done)=>{
-  done(null, user)
-})
+  )
+);
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+
+module.exports = passport;
