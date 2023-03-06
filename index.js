@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
@@ -31,22 +30,22 @@ function isLoggedIn(req, res, next) {
   console.log("the cookie", req.cookies);
   const token = req.cookies.token;
   const verify = jwt.verify(token, process.env.JWT_SECRET);
-  console.log("verify", verify);
+  console.log("verify", verify); 
   if (verify.email) {
     req.user = verify;
     next();
-  } else {
-    res.redirect("/auth/google");
-  }
+  } else{
+    res.redirect("/auth/google")
+  } 
 }
 
 app.get("/", (req, res) => {
-  res.render("home.ejs");
+  res.render('home.ejs')
 });
 
 app.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["email", "profile"] })
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 app.get(
@@ -72,7 +71,7 @@ app.get(
           console.log("User saved");
         })
         .catch((err) => {
-          res.render("Error.ejs");
+          res.render("Error.ejs")
           console.log(err.message);
         });
     }
@@ -82,47 +81,19 @@ app.get(
 );
 
 app.get("/auth/failure", (req, res) => {
-  res.render("Error.ejs");
-});
-
-app.post("/send-email", isLoggedIn, (req, res) => {
-  const header = req.headers.authorization;
-  if (!header) {
-    return res.status(403).json({
-      message: "Not logged in",
-    });
-  }
-  const token = header.split(" ")[1];
-  const userInfo = jwt.verify(token, process.env.TOKEN_SECRET);
-  console.log(userInfo);
-  res.send(userInfo);
-
+  res.render("Error.ejs")
 });
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.get("/send-email", isLoggedIn, async (req, res) => {
-  const user = await User.findOne({ where: { email: req.user.email } });
-  if (!user) {
-    User.create({
-      name: req.user.displayName,
-      email: req.user.email,
-    })
-      .then(() => {
-        console.log("User saved");
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }
-
   res.render("sendEmail.ejs");
 });
 
 app.post("/send-email", isLoggedIn, async (req, res) => {
   const { recipientEmails, subject, body } = req.body;
   const recipientsEmails = recipientEmails.split(/\s*,\s*/);
-  console.log(recipientsEmails);
+  console.log(recipientsEmails)
   const senderEmail = req.user.email;
   const senderName = req.user.displayName;
 
@@ -146,28 +117,28 @@ app.post("/send-email", isLoggedIn, async (req, res) => {
           console.log("Email sent successfully and saved to database!");
         })
         .catch((err) => {
-          res.render("Error.ejs");
+          res.render("Error.ejs")
           console.log(err.message);
         });
     });
-    res.render("sent.ejs");
+    res.render("sent.ejs"); 
   } catch (error) {
     console.log(error);
-    res.render("Error.ejs");
+    res.render("Error.ejs")
   }
 });
 
 app.get("/logout", (req, res) => {
   req.logout(function (err) {
     if (err) {
-      res.render("Error.ejs");
+      res.render("Error.ejs")
       console.log(err);
     }
     res.clearCookie("token");
     req.session.destroy();
-    console.log("logged out");
+    console.log("logged out successfully");
     res.redirect("/");
-  });
+  }); 
 });
 
 app.listen(3000, () => {
