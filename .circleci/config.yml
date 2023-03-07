@@ -1,0 +1,25 @@
+version: 2.1
+jobs: 
+  run_tests:
+    docker: 
+      - image: circleci/node:16
+    environment: 
+      repo_token: 8Au5Iu9a8AuGAZvrwgvKdgX6gzxLJ4Ull
+    steps:
+      - checkout
+      - run:
+          name: Install npm dependencies
+          command: npm install 
+      - run:
+          name: Install npm dev dependencies
+          command: npm install mocha c8 chai-http chai 
+      - run:
+          name: Run Unit Tests
+          command: npm run coverage
+      - run:
+          name: Upload coverage to Coveralls
+          command: npx coveralls < coverage/lcov.info
+workflows:
+  build_tests:
+    jobs:
+      - run_tests
