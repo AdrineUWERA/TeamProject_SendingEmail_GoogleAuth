@@ -4,7 +4,7 @@ jobs:
     docker: 
       - image: circleci/node:16
     environment: 
-      repo_token: 8Au5Iu9a8AuGAZvrwgvKdgX6gzxLJ4Ull
+      repo_token: U0NeWoBTQxX70twj4GavD1qofaeW4SNR2
     steps:
       - checkout
       - run:
