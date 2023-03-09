@@ -1,0 +1,69 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap");
+    body {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+      font-family: "Noto Serif", serif;
+      max-width: 1200px;
+    }
+    .content {
+      margin: 0 15%;
+    }
+    h3{
+        color: crimson;
+        font-size: 50px;
+        margin: 0;
+        padding: 0
+    }
+    p{
+        font-size: 24px;
+    }
+    .container{
+        width: 100%;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .send_email {
+      margin-top: 20px;
+      background: crimson;
+      color: white;
+      padding: 10px 80px;
+      border: 0;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+    .logout {
+      margin-top: 20px;
+      background: crimson;
+      color: white;
+      padding: 6px 70px;
+      border: 0;
+      font-size: 1.2em;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-container {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+  </style>
+</head>
+
+<div class="content">
+  <div class="btn-container">
+    <a href="/logout" class="logout">Logout</a>
+  </div>
+  <div class="container">
+    <h3>Sent!</h3>
+    <p>Email delivered successfully.</p>
+    <a href="/send-email"><button class="send_email">Send more email</button></a>
+  </div>
+</div>
