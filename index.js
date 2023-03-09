@@ -1,5 +1,4 @@
-const express = require("express");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const express = require("express"); 
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 const session = require("express-session");
@@ -144,3 +143,5 @@ app.get("/logout", (req, res) => {
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
+
+module.exports=app
