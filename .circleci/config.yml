@@ -12,7 +12,7 @@ jobs:
           command: npm install 
       - run:
           name: Install npm dev dependencies
-          command: npm install mocha c8 chai-http chai 
+          command: npm install coveralls mocha c8 chai-http chai 
       - run:
           name: Run Unit Tests
           command: npm run coverage
